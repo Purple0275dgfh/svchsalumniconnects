@@ -16,6 +16,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [batchYear, setBatchYear] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -48,10 +49,25 @@ export default function Auth() {
         });
         navigate("/");
       } else {
-        if (!fullName || !batchYear) {
+        if (!fullName || !batchYear || !dateOfBirth) {
           toast({
             title: "Missing information",
-            description: "Please provide your full name and batch year.",
+            description: "Please provide your full name, batch year, and date of birth.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        // Validate date of birth
+        const dob = new Date(dateOfBirth);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        
+        if (age < 10 || age > 120) {
+          toast({
+            title: "Invalid date of birth",
+            description: "Please provide a valid date of birth.",
             variant: "destructive",
           });
           setLoading(false);
@@ -64,8 +80,9 @@ export default function Auth() {
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              full_name: fullName,
+              full_name: fullName.trim(),
               batch_year: batchYear,
+              date_of_birth: dateOfBirth,
             },
           },
         });
@@ -142,6 +159,17 @@ export default function Auth() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={dateOfBirth}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
+                      max={new Date().toISOString().split('T')[0]}
+                      required={!isLogin}
+                    />
                   </div>
                 </>
               )}
