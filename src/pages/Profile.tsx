@@ -17,6 +17,7 @@ export default function Profile() {
   const [profile, setProfile] = useState({
     full_name: "",
     batch_year: "",
+    date_of_birth: "",
     phone: "",
     location: "",
     occupation: "",
@@ -54,6 +55,23 @@ export default function Profile() {
     setSaving(true);
 
     try {
+      // Validate date of birth
+      if (profile.date_of_birth) {
+        const dob = new Date(profile.date_of_birth);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        
+        if (age < 10 || age > 120) {
+          toast({
+            title: "Invalid date of birth",
+            description: "Please provide a valid date of birth.",
+            variant: "destructive",
+          });
+          setSaving(false);
+          return;
+        }
+      }
+
       const { batch_year, ...updateData } = profile;
       const { error } = await supabase
         .from('profiles')
@@ -124,6 +142,18 @@ export default function Profile() {
                   className="bg-muted"
                 />
                 <p className="text-xs text-muted-foreground">Batch year cannot be changed</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date_of_birth">Date of Birth *</Label>
+                <Input
+                  id="date_of_birth"
+                  type="date"
+                  value={profile.date_of_birth ? new Date(profile.date_of_birth).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
+                  max={new Date().toISOString().split('T')[0]}
+                  required
+                />
               </div>
 
               <div className="space-y-2">
