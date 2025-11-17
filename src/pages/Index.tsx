@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Users, Calendar, DollarSign, Award, BookOpen } from "lucide-react";
+import { Heart, Users, Calendar, IndianRupee, Award, BookOpen } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import heroImage from "@/assets/school-photo.png";
 import { useEffect, useState } from "react";
@@ -65,7 +65,7 @@ export default function Index() {
             </Link>
             <Link to="/donate">
               <Button size="lg" variant="outline" className="text-lg">
-                <DollarSign className="mr-2 h-5 w-5" />
+                <IndianRupee className="mr-2 h-5 w-5" />
                 Support SVCHS
               </Button>
             </Link>
@@ -86,7 +86,7 @@ export default function Index() {
             </Card>
             <Card className="text-center shadow-soft">
               <CardHeader>
-                <DollarSign className="h-12 w-12 mx-auto text-accent mb-2" />
+                <IndianRupee className="h-12 w-12 mx-auto text-accent mb-2" />
                 <CardTitle className="text-4xl font-bold">₹{stats.totalDonations.toLocaleString('en-IN')}</CardTitle>
                 <CardDescription className="text-base">Raised for SVCHS Fund</CardDescription>
               </CardHeader>
@@ -156,7 +156,7 @@ export default function Index() {
 
             <Card className="shadow-soft hover:shadow-warm transition-shadow">
               <CardHeader>
-                <DollarSign className="h-10 w-10 text-accent mb-4" />
+                <IndianRupee className="h-10 w-10 text-accent mb-4" />
                 <CardTitle>SVCHS Alumni Fund</CardTitle>
                 <CardDescription>
                   Support scholarships, infrastructure, and student programs. Every contribution makes a difference.

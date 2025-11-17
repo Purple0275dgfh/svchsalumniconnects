@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Calendar, ImageIcon, DollarSign, Shield } from "lucide-react";
+import { Heart, Users, Calendar, ImageIcon, IndianRupee, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -65,7 +65,7 @@ export default function Navbar() {
             Gallery
           </Link>
           <Link to="/donate" className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors">
-            <DollarSign className="h-4 w-4" />
+            <IndianRupee className="h-4 w-4" />
             Donate
           </Link>
           {isAdmin && (
