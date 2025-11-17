@@ -160,6 +160,7 @@ export type Database = {
           batch_year: Database["public"]["Enums"]["batch_year"]
           bio: string | null
           created_at: string
+          date_of_birth: string
           full_name: string
           id: string
           location: string | null
@@ -172,6 +173,7 @@ export type Database = {
           batch_year: Database["public"]["Enums"]["batch_year"]
           bio?: string | null
           created_at?: string
+          date_of_birth: string
           full_name: string
           id: string
           location?: string | null
@@ -184,6 +186,7 @@ export type Database = {
           batch_year?: Database["public"]["Enums"]["batch_year"]
           bio?: string | null
           created_at?: string
+          date_of_birth?: string
           full_name?: string
           id?: string
           location?: string | null
