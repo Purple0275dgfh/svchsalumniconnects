@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      birthday_wishes: {
+        Row: {
+          id: string
+          sent_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          id?: string
+          sent_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          id?: string
+          sent_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       donations: {
         Row: {
           amount: number
@@ -25,6 +46,7 @@ export type Database = {
           message: string | null
           payment_method: string | null
           receipt_url: string | null
+          screenshot_url: string | null
           transaction_id: string | null
           verified: boolean | null
         }
@@ -38,6 +60,7 @@ export type Database = {
           message?: string | null
           payment_method?: string | null
           receipt_url?: string | null
+          screenshot_url?: string | null
           transaction_id?: string | null
           verified?: boolean | null
         }
@@ -51,6 +74,7 @@ export type Database = {
           message?: string | null
           payment_method?: string | null
           receipt_url?: string | null
+          screenshot_url?: string | null
           transaction_id?: string | null
           verified?: boolean | null
         }
@@ -219,6 +243,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_todays_birthdays: {
+        Args: never
+        Returns: {
+          batch_year: Database["public"]["Enums"]["batch_year"]
+          full_name: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -73,6 +73,23 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Donation Quote Section */}
+      <section className="py-12 bg-gradient-warm">
+        <div className="container mx-auto px-4">
+          <Card className="max-w-4xl mx-auto border-none shadow-elegant bg-card/95 backdrop-blur">
+            <CardContent className="p-8 md:p-12 text-center">
+              <Heart className="h-12 w-12 mx-auto text-primary mb-4" />
+              <blockquote className="text-2xl md:text-3xl font-semibold text-foreground mb-4 leading-relaxed">
+                "Every contribution, on your special day or any day, becomes a beacon of hope that illuminates the path for tomorrow's leaders."
+              </blockquote>
+              <p className="text-lg text-muted-foreground italic">
+                Your birthday, their bright future - Alumni supporting the next generation
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
