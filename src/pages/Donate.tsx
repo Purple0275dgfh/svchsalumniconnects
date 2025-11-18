@@ -29,6 +29,9 @@ export default function Donate() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [totalRaised, setTotalRaised] = useState(0);
   const [user, setUser] = useState(null);
+  const [transactionId, setTransactionId] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -83,13 +86,37 @@ export default function Donate() {
     }
 
     try {
+      let screenshotUrl = null;
+
+      // Upload screenshot if provided
+      if (screenshotFile) {
+        const fileExt = screenshotFile.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `donation-proofs/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('photos')
+          .upload(filePath, screenshotFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('photos')
+          .getPublicUrl(filePath);
+
+        screenshotUrl = urlData.publicUrl;
+      }
+
       const { error } = await supabase.from('donations').insert({
         donor_id: user.id,
         donor_name: isAnonymous ? "Anonymous" : donorName,
         amount: parseFloat(amount),
         message: message || null,
         is_anonymous: isAnonymous,
-        verified: false, // Will be verified by admin
+        verified: false,
+        transaction_id: transactionId || null,
+        payment_method: paymentMethod || null,
+        screenshot_url: screenshotUrl,
       });
 
       if (error) throw error;
@@ -101,6 +128,9 @@ export default function Donate() {
 
       setAmount("");
       setMessage("");
+      setTransactionId("");
+      setPaymentMethod("");
+      setScreenshotFile(null);
       fetchDonations();
     } catch (error: any) {
       toast({
@@ -198,6 +228,43 @@ export default function Donate() {
                     rows={3}
                   />
                 </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="transactionId">Transaction ID (Optional)</Label>
+                  <Input
+                    id="transactionId"
+                    placeholder="Enter transaction/reference ID"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="paymentMethod">Payment Method (Optional)</Label>
+                  <Input
+                    id="paymentMethod"
+                    placeholder="e.g., UPI, Bank Transfer, Cash"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="screenshot">Payment Screenshot (Optional)</Label>
+                  <Input
+                    id="screenshot"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setScreenshotFile(e.target.files?.[0] || null)}
+                    className="cursor-pointer"
+                  />
+                  {screenshotFile && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {screenshotFile.name}
+                    </p>
+                  )}
+                </div>
+                
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="anonymous"
