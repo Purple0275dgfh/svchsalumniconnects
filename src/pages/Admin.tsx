@@ -5,13 +5,14 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Users, DollarSign, Calendar, CheckCircle, XCircle } from "lucide-react";
+import { Shield, Users, DollarSign, Calendar, CheckCircle, XCircle, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pendingDonations, setPendingDonations] = useState([]);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -58,6 +59,32 @@ export default function Admin() {
 
     if (!error && data) {
       setPendingDonations(data);
+    }
+  };
+
+  const getSignedUrl = async (donationId: string, screenshotPath: string) => {
+    if (signedUrls[donationId]) {
+      // Open existing signed URL
+      window.open(signedUrls[donationId], '_blank');
+      return;
+    }
+
+    const { data, error } = await supabase.storage
+      .from('donation-proofs')
+      .createSignedUrl(screenshotPath, 3600); // 1 hour expiry
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load screenshot.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data?.signedUrl) {
+      setSignedUrls(prev => ({ ...prev, [donationId]: data.signedUrl }));
+      window.open(data.signedUrl, '_blank');
     }
   };
 
@@ -183,15 +210,32 @@ export default function Admin() {
                         <Badge variant="outline" className="text-primary font-bold">
                           ₹{Number(donation.amount).toLocaleString('en-IN')}
                         </Badge>
+                        {donation.transaction_id && (
+                          <Badge variant="secondary" className="text-xs">
+                            ID: {donation.transaction_id}
+                          </Badge>
+                        )}
                       </div>
                       {donation.message && (
                         <p className="text-sm text-muted-foreground mb-2">
                           "{donation.message}"
                         </p>
                       )}
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(donation.created_at).toLocaleString('en-IN')}
-                      </p>
+                      <div className="flex items-center gap-4">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(donation.created_at).toLocaleString('en-IN')}
+                        </p>
+                        {donation.screenshot_url && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => getSignedUrl(donation.id, donation.screenshot_url)}
+                          >
+                            <Image className="h-4 w-4 mr-1" />
+                            View Proof
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button
