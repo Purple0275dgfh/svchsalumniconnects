@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1'
 import { Resend } from 'https://esm.sh/resend@4.0.0'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+const FUNCTION_SECRET = Deno.env.get('BIRTHDAY_FUNCTION_SECRET')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +15,28 @@ interface BirthdayPerson {
   batch_year: string
 }
 
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
+const MAX_REQUESTS_PER_WINDOW = 5 // Max 5 requests per hour
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const record = rateLimitMap.get(ip)
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
+    return true
+  }
+  
+  if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false
+  }
+  
+  record.count++
+  return true
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -21,6 +44,28 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify authorization token
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader || authHeader !== `Bearer ${FUNCTION_SECRET}`) {
+      console.error('Unauthorized request - invalid or missing token')
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Rate limiting check
+    const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown'
+    if (!checkRateLimit(clientIP)) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`)
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('🔐 Authorization verified, processing birthday wishes...')
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
