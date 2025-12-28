@@ -88,23 +88,21 @@ export default function Donate() {
     try {
       let screenshotUrl = null;
 
-      // Upload screenshot if provided
+      // Upload screenshot if provided (to private bucket)
       if (screenshotFile) {
         const fileExt = screenshotFile.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const filePath = `donation-proofs/${fileName}`;
+        const fileName = `${Date.now()}.${fileExt}`;
+        // Store in user's folder for RLS policy
+        const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('photos')
+          .from('donation-proofs')
           .upload(filePath, screenshotFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: urlData } = supabase.storage
-          .from('photos')
-          .getPublicUrl(filePath);
-
-        screenshotUrl = urlData.publicUrl;
+        // Store just the path - admins will generate signed URLs to view
+        screenshotUrl = filePath;
       }
 
       const { error } = await supabase.from('donations').insert({
