@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Users, Calendar, IndianRupee, Award, BookOpen } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import heroImage from "@/assets/school-photo.png";
+import heroImage from "@/assets/swami-vivekananda.jpg";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
